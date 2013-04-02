@@ -1,6 +1,6 @@
 Loader = {
   // ##Constant## 
-  VERSION: "0.0.1",
+  VERSION: "0.0.2",
   DESCRIPTION:  "Simple, lightweigth fileloader",
   CMD_DELIMITER: '!',
   DEBUG: true,
@@ -48,8 +48,9 @@ Loader = {
     this.plugins[ method ].call( 
         null, 
         url, 
-        function(){ 
-          callback(); 
+        function(){
+          if( callback && (typeof callback !== 'undefined') )  
+            callback(); 
         } 
     );
   },
@@ -91,16 +92,18 @@ Loader = {
             if (script.readyState == "loaded" ||
                   script.readyState == "complete"){
               script.onreadystatechange = null;
-              callback();
-              log( url + " has loaded");
+              if( callback && (typeof callback !== 'undefined') )  
+                callback();
+              Loader.log( url + " has loaded");
             }
           };
         }
         // Block for others browsers 
         else {
           script.onload = function(){
-            callback();
-            log( url + " has loaded");
+            if( callback && (typeof callback !== 'undefined') )  
+              callback();
+            Loader.log( url + " has loaded");
           };
         };
 
@@ -110,8 +113,9 @@ Loader = {
       }
       // If file exists - run callback function
       else{
-        callback();
-        log( url + " is exists");        
+        if( callback && (typeof callback !== 'undefined') )  
+          callback();
+        Loader.log( url + " is exists");        
       }
     },
 
@@ -170,6 +174,33 @@ Loader = {
         }
       };
     }());
+  },
+
+  // ## Loader.config ##
+  /**
+   * Set configuratin, when loader is loaded
+   */
+  config: function(){
+    // Find list of scripts
+    var aScripts = document.getElementsByTagName("script");
+    // List of files from data-main
+    var aMain = [];
+
+    // Trying to fill aMain
+    for( var x = 0; x < aScripts.length; x++ ){
+      var node = aScripts[x];
+      var main = node.getAttribute("data-main");
+      if( main ){
+        aMain.push( main );
+      }
+    };
+    // If aMain has a length more then 0 run Loader.Manager
+    if( aMain.length > 0 ){
+      Loader.Manager( aMain );
+    };
   }
 };
+
+// Start Loader.config after loading file
+Loader.config();
 
