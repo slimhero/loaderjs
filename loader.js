@@ -23,7 +23,7 @@ Loader = {
    *   Loader.get( 'test.js', function(){ alert("Hi!"); } );
    *   Loader.get( 'css!test.css', function(){ alert("Hi!"); } );
    */   
-  get: function(cmd, callback){
+  get: function(cmd, callback, error ){
     // URL of file
     var url = "";
     // Method name for loading file
@@ -45,14 +45,22 @@ Loader = {
 
     // After that run plugin by method name
     // It's like a link to Component.Loader.plugins
-    this.plugins[ method ].call( 
-        null, 
-        url, 
-        function(){
-          if( callback && (typeof callback !== 'undefined') )  
-            callback(); 
-        } 
-    );
+    if( this.plugins[ method ] && url ){ 
+      this.plugins[ method ].call( 
+          null, 
+          url, 
+          function(){
+            if( callback && (typeof callback !== 'undefined') )  
+              callback(); 
+          } 
+      );
+    }
+    else{
+      if( error && (typeof error !== 'undefined') )  
+        error();
+      else
+        Loader.log( 'Loader method <' + method + '> not found. There is no that plugin' );
+    } 
   },
     
   // ## Loader.plugins ##
@@ -123,19 +131,95 @@ Loader = {
     // Plugin to load css files.   
     // Runs from Loader.get 
     /**
-     * Load js files.  Uses as default
+     * Load css files.
      * Parameters:
      *   @ulr [String] - URL
      *   @callback [function] - callback function
      */
-    css: function( url, collback ){
-      var cssNode = document.createElement('link');
-      cssNode.type = 'text/css';
-      cssNode.rel = 'stylesheet';
-      cssNode.href = url;
-      cssNode.media = 'screen';
-      document.getElementsByTagName("head")[0].appendChild(cssNode);
-      callback();
+    css: function( url, callback ){
+      // Get list of css files.
+      var aCss = document.getElementsByTagName("script");
+      var iIsExist = false;
+      // May be file has been loaded earlier.
+      if( aCss.length ){
+        for( var x = 0; x<aCss.length; x++ ){
+          if( aCss[x].href == url ){
+            iIsExist = true;
+            break;
+          }
+        }
+      };
+
+      // Write this file in document.
+      if( !iIsExist ){
+        var cssNode = document.createElement('link');
+        cssNode.type = 'text/css';
+        cssNode.rel = 'stylesheet';
+        cssNode.href = url;
+        cssNode.media = 'screen';
+        document.getElementsByTagName("head")[0].appendChild(cssNode);
+        Loader.log( url + ' has been loaded' );
+      }
+      else{
+        Loader.log( url + ' is exist' );
+      };
+      if( callback && (typeof callback !== 'undefined') )  
+        callback();
+    },
+
+    // ## Loader.plugins.hbs ##
+    // Plugin to load hbs files( handlebars template ).   
+    // Runs from Loader.get 
+    /**
+     * Load hbs files.
+     * Parameters:
+     *   @ulr [String] - URL
+     *   @callback [function] - callback function
+     */
+    hbs: function( url, callback ){
+      //Check Handlebars
+      if( window["Handlebars"] && window["$"] ){
+        // Get list of script element
+        var aHbs = document.getElementsByTagName("script");
+        // Existing-file state
+        var IsScriptExist = false;
+        // Template type
+        var TType = "text/x-handlebars-template";
+        
+        // May be file has been loaded earlier.
+        if( aHbs.length > 0 ){
+          for( var x = 0; x<aHbs.length; x++ ){
+            if( TType == aHbs[x].type ){
+              if( aHbs[x].src == url ){
+                IsScriptExist = true;
+                break;
+              }
+            }
+          };
+
+          if( !IsScriptExist ){
+            var template = document.createElement("script");
+            template.type = TType;
+            
+            $(template).attr(
+                'data-template-name', 
+                url.replace('.hbs', '').substring(url.lastIndexOf('/')+1)
+            );
+
+            $.get(url, function(data){
+                template.text = data;
+                document.head.appendChild( template );
+                Loader.log( url + " has loaded");
+                if( callback && (typeof callback !== 'undefined') )  
+                  callback();
+            });
+
+          };
+        };
+      }
+      else{
+        Loader.log( 'There is no any handlebars lib or jQuery' );
+      }
     }
   },
 
@@ -170,7 +254,10 @@ Loader = {
           ); 
         }
         else{
-          Loader.get( f, callback, error );
+          // Check what has been returned to f
+          if( f ){
+            Loader.get( f, callback, error );
+          }
         }
       };
     }());
@@ -203,4 +290,3 @@ Loader = {
 
 // Start Loader.config after loading file
 Loader.config();
-

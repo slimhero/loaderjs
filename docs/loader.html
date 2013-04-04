@@ -92,7 +92,7 @@ Works when Loader.DEBUG is true</p>
    *   Loader.get( 'test.js', function(){ alert("Hi!"); } );
    *   Loader.get( 'css!test.css', function(){ alert("Hi!"); } );
    */</span>   
-  get: <span class="keyword">function</span>(cmd, callback){</pre></div></div>
+  get: <span class="keyword">function</span>(cmd, callback, error ){</pre></div></div>
             
         </li>
         
@@ -191,14 +191,22 @@ It&#39;s like a link to Component.Loader.plugins</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">this</span>.plugins[ method ].call( 
-        <span class="literal">null</span>, 
-        url, 
-        <span class="keyword">function</span>(){
-          <span class="keyword">if</span>( callback &amp;&amp; (<span class="keyword">typeof</span> callback !== <span class="string">'undefined'</span>) )  
-            callback(); 
-        } 
-    );
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span>( <span class="keyword">this</span>.plugins[ method ] &amp;&amp; url ){ 
+      <span class="keyword">this</span>.plugins[ method ].call( 
+          <span class="literal">null</span>, 
+          url, 
+          <span class="keyword">function</span>(){
+            <span class="keyword">if</span>( callback &amp;&amp; (<span class="keyword">typeof</span> callback !== <span class="string">'undefined'</span>) )  
+              callback(); 
+          } 
+      );
+    }
+    <span class="keyword">else</span>{
+      <span class="keyword">if</span>( error &amp;&amp; (<span class="keyword">typeof</span> error !== <span class="string">'undefined'</span>) )  
+        error();
+      <span class="keyword">else</span>
+        Loader.log( <span class="string">'Loader method &lt;'</span> + method + <span class="string">'&gt; not found. There is no that plugin'</span> );
+    } 
   },</pre></div></div>
             
         </li>
@@ -421,21 +429,12 @@ and go out from for-block</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>    <span class="comment">/**
-     * Load js files.  Uses as default
+     * Load css files.
      * Parameters:
      *   @ulr [String] - URL
      *   @callback [function] - callback function
      */</span>
-    css: <span class="keyword">function</span>( url, collback ){
-      <span class="keyword">var</span> cssNode = document.createElement(<span class="string">'link'</span>);
-      cssNode.type = <span class="string">'text/css'</span>;
-      cssNode.rel = <span class="string">'stylesheet'</span>;
-      cssNode.href = url;
-      cssNode.media = <span class="string">'screen'</span>;
-      document.getElementsByTagName(<span class="string">"head"</span>)[<span class="number">0</span>].appendChild(cssNode);
-      callback();
-    }
-  },</pre></div></div>
+    css: <span class="keyword">function</span>( url, callback ){</pre></div></div>
             
         </li>
         
@@ -443,8 +442,206 @@ and go out from for-block</p>
         <li id="section-23">
             <div class="annotation">
               
-              <div class="pilwrap for-h2">
+              <div class="pilwrap ">
                 <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Get list of css files.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="keyword">var</span> aCss = document.getElementsByTagName(<span class="string">"script"</span>);
+      <span class="keyword">var</span> iIsExist = <span class="literal">false</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>May be file has been loaded earlier.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="keyword">if</span>( aCss.length ){
+        <span class="keyword">for</span>( <span class="keyword">var</span> x = <span class="number">0</span>; x&lt;aCss.length; x++ ){
+          <span class="keyword">if</span>( aCss[x].href == url ){
+            iIsExist = <span class="literal">true</span>;
+            <span class="keyword">break</span>;
+          }
+        }
+      };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Write this file in document.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="keyword">if</span>( !iIsExist ){
+        <span class="keyword">var</span> cssNode = document.createElement(<span class="string">'link'</span>);
+        cssNode.type = <span class="string">'text/css'</span>;
+        cssNode.rel = <span class="string">'stylesheet'</span>;
+        cssNode.href = url;
+        cssNode.media = <span class="string">'screen'</span>;
+        document.getElementsByTagName(<span class="string">"head"</span>)[<span class="number">0</span>].appendChild(cssNode);
+        Loader.log( url + <span class="string">' has been loaded'</span> );
+      }
+      <span class="keyword">else</span>{
+        Loader.log( url + <span class="string">' is exist'</span> );
+      };
+      <span class="keyword">if</span>( callback &amp;&amp; (<span class="keyword">typeof</span> callback !== <span class="string">'undefined'</span>) )  
+        callback();
+    },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <h2>Loader.plugins.hbs</h2>
+<p>Plugin to load hbs files( handlebars template ).<br>Runs from Loader.get </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="comment">/**
+     * Load hbs files.
+     * Parameters:
+     *   @ulr [String] - URL
+     *   @callback [function] - callback function
+     */</span>
+    hbs: <span class="keyword">function</span>( url, callback ){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>Check Handlebars</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="keyword">if</span>( window[<span class="string">"Handlebars"</span>] &amp;&amp; window[<span class="string">"$"</span>] ){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Get list of script element</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> aHbs = document.getElementsByTagName(<span class="string">"script"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>Existing-file state</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> IsScriptExist = <span class="literal">false</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>Template type</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">var</span> TType = <span class="string">"text/x-handlebars-template"</span>;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>May be file has been loaded earlier.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="keyword">if</span>( aHbs.length &gt; <span class="number">0</span> ){
+          <span class="keyword">for</span>( <span class="keyword">var</span> x = <span class="number">0</span>; x&lt;aHbs.length; x++ ){
+            <span class="keyword">if</span>( TType == aHbs[x].type ){
+              <span class="keyword">if</span>( aHbs[x].src == url ){
+                IsScriptExist = <span class="literal">true</span>;
+                <span class="keyword">break</span>;
+              }
+            }
+          };
+
+          <span class="keyword">if</span>( !IsScriptExist ){
+            <span class="keyword">var</span> template = document.createElement(<span class="string">"script"</span>);
+            template.type = TType;
+            
+            $(template).attr(
+                <span class="string">'data-template-name'</span>, 
+                url.replace(<span class="string">'.hbs'</span>, <span class="string">''</span>).substring(url.lastIndexOf(<span class="string">'/'</span>)+<span class="number">1</span>)
+            );
+
+            $.get(url, <span class="keyword">function</span>(data){
+                template.text = data;
+                document.head.appendChild( template );
+                Loader.log( url + <span class="string">" has loaded"</span>);
+                <span class="keyword">if</span>( callback &amp;&amp; (<span class="keyword">typeof</span> callback !== <span class="string">'undefined'</span>) )  
+                  callback();
+            });
+
+          };
+        };
+      }
+      <span class="keyword">else</span>{
+        Loader.log( <span class="string">'There is no any handlebars lib or jQuery'</span> );
+      }
+    }
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <h2>Loader.Manager</h2>
 <p>Load several files </p>
@@ -469,11 +666,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-24">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>Recursively call Loader.get to load file</p>
 
@@ -492,8 +689,24 @@ and go out from for-block</p>
             })(aFiles, callback, error ) 
           ); 
         }
-        <span class="keyword">else</span>{
-          Loader.get( f, callback, error );
+        <span class="keyword">else</span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>Check what has been returned to f</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>          <span class="keyword">if</span>( f ){
+            Loader.get( f, callback, error );
+          }
         }
       };
     }());
@@ -502,11 +715,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-25">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <h2>Loader.config</h2>
 
@@ -520,11 +733,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-26">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>Find list of scripts</p>
 
@@ -535,11 +748,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-27">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
               <p>List of files from data-main</p>
 
@@ -550,11 +763,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-28">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <p>Trying to fill aMain</p>
 
@@ -571,11 +784,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-29">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
               <p>If aMain has a length more then 0 run Loader.Manager</p>
 
@@ -590,11 +803,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>Start Loader.config after loading file</p>
 
