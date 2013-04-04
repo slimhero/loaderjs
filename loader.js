@@ -169,7 +169,8 @@ Loader = {
 
     // ## Loader.plugins.hbs ##
     // Plugin to load hbs files( handlebars template ).   
-    // Runs from Loader.get 
+    // Runs from Loader.get
+    // Needs to Handlebars and jQuery 
     /**
      * Load hbs files.
      * Parameters:
@@ -177,7 +178,7 @@ Loader = {
      *   @callback [function] - callback function
      */
     hbs: function( url, callback ){
-      //Check Handlebars
+      //Check Handlebars and jQuery
       if( window["Handlebars"] && window["$"] ){
         // Get list of script element
         var aHbs = document.getElementsByTagName("script");
@@ -196,7 +197,8 @@ Loader = {
               }
             }
           };
-
+          // Begin to download from server when can find this file 
+          // in the page
           if( !IsScriptExist ){
             var template = document.createElement("script");
             template.type = TType;
@@ -206,6 +208,8 @@ Loader = {
                 url.replace('.hbs', '').substring(url.lastIndexOf('/')+1)
             );
 
+            // Use $.get to download and finally write to the page
+            // after full downloading
             $.get(url, function(data){
                 template.text = data;
                 document.head.appendChild( template );

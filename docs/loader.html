@@ -513,7 +513,8 @@ and go out from for-block</p>
                 <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <h2>Loader.plugins.hbs</h2>
-<p>Plugin to load hbs files( handlebars template ).<br>Runs from Loader.get </p>
+<p>Plugin to load hbs files( handlebars template ).<br>Runs from Loader.get
+Needs to Handlebars and jQuery </p>
 
             </div>
             
@@ -534,7 +535,7 @@ and go out from for-block</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
-              <p>Check Handlebars</p>
+              <p>Check Handlebars and jQuery</p>
 
             </div>
             
@@ -606,18 +607,46 @@ and go out from for-block</p>
                 <span class="keyword">break</span>;
               }
             }
-          };
+          };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>Begin to download from server when can find this file 
+in the page</p>
 
-          <span class="keyword">if</span>( !IsScriptExist ){
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>          <span class="keyword">if</span>( !IsScriptExist ){
             <span class="keyword">var</span> template = document.createElement(<span class="string">"script"</span>);
             template.type = TType;
             
             $(template).attr(
                 <span class="string">'data-template-name'</span>, 
                 url.replace(<span class="string">'.hbs'</span>, <span class="string">''</span>).substring(url.lastIndexOf(<span class="string">'/'</span>)+<span class="number">1</span>)
-            );
+            );</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>Use $.get to download and finally write to the page
+after full downloading</p>
 
-            $.get(url, <span class="keyword">function</span>(data){
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            $.get(url, <span class="keyword">function</span>(data){
                 template.text = data;
                 document.head.appendChild( template );
                 Loader.log( url + <span class="string">" has loaded"</span>);
@@ -637,11 +666,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-32">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-32">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <h2>Loader.Manager</h2>
 <p>Load several files </p>
@@ -666,11 +695,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-33">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Recursively call Loader.get to load file</p>
 
@@ -694,11 +723,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-34">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>Check what has been returned to f</p>
 
@@ -715,11 +744,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-35">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-35">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
               <h2>Loader.config</h2>
 
@@ -733,11 +762,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-36">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <p>Find list of scripts</p>
 
@@ -748,11 +777,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-37">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
               <p>List of files from data-main</p>
 
@@ -763,11 +792,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-38">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>Trying to fill aMain</p>
 
@@ -784,11 +813,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-39">
+        <li id="section-41">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
               <p>If aMain has a length more then 0 run Loader.Manager</p>
 
@@ -803,11 +832,11 @@ and go out from for-block</p>
         </li>
         
         
-        <li id="section-40">
+        <li id="section-42">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
               <p>Start Loader.config after loading file</p>
 
