@@ -138,12 +138,14 @@ Loader = {
      */
     css: function( url, callback ){
       // Get list of css files.
-      var aCss = document.getElementsByTagName("script");
+      var aCss = document.getElementsByTagName("link");
       var iIsExist = false;
       // May be file has been loaded earlier.
       if( aCss.length ){
         for( var x = 0; x<aCss.length; x++ ){
-          if( aCss[x].href == url ){
+          //if we find href usig getattribute we get 
+          //more correct answer - without www
+          if( aCss[x].getAttribute( "href" ) == url ){
             iIsExist = true;
             break;
           }
